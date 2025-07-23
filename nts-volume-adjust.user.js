@@ -1,28 +1,26 @@
 // ==UserScript==
 // @name         NTS.live Volume Adjust
 // @namespace    https://raw.githubusercontent.com/Inevitabby/nts-volume-adjust/refs/heads/main/nts-volume-adjust.user.js
-// @version      1.0
+// @version      1.1
 // @description  Adjust volume of music on NTS.live.
 // @author       Inevitabby
 // @match        https://www.nts.live/*
+// @match        https://*.mixcloud.com/*
 // @grant        none
 // ==/UserScript==
 
-(function () {
-	"use strict";
+(function() {
+    "use strict";
+    const VOLUME = 0.1;
 
-	const VOLUME = 0.3;
+    if (location.hostname.includes("mixcloud.com") && !location.href.includes("NTSRadio")) return;
 
-	function poll() {
-		const AUDIO_ELEM = document.querySelector(".soundcloud-player audio");
-		if (!AUDIO_ELEM) return setTimeout(poll, 500);
+    const observer = new MutationObserver(() => {
+        document.querySelectorAll("audio").forEach(audio => {
+            audio.volume = VOLUME;
+            audio.onvolumechange = () => audio.volume = VOLUME;
+        });
+    });
 
-		AUDIO_ELEM.volume = VOLUME;
-		AUDIO_ELEM.addEventListener("volumechange", () => {
-			if (AUDIO_ELEM.volume === VOLUME) return;
-			AUDIO_ELEM.volume = VOLUME;
-		});
-	}
-
-	poll();
+    observer.observe(document.body, { childList: true, subtree: true });
 })();
